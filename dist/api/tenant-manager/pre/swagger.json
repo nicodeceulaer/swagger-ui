@@ -1,0 +1,816 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "Tenant Manager API",
+        "version": "0.0.2"
+    },
+    "schemes": [
+        "http"
+    ],
+    "consumes": [
+        "application/json"
+    ],
+    "produces": [
+        "application/json"
+    ],
+    "paths": {
+        "/tenants": {
+            "post": {
+                "summary": "Create tenant.",
+                "description": "Creates a tenant.  Only name is mandatory field.  id, rules and attributes are optional.\nIf id is not present, an unique id will be generated from the name.\n",
+                "parameters": [
+                    {
+                        "name": "tenant",
+                        "in": "body",
+                        "description": "Tenant to be created.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/tenant"
+                        }
+                    }
+                ],
+                "tags": [
+                    "Tenants"
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Tenant successfully created.  (Location header contains URL to tenant)",
+                        "schema": {
+                            "$ref": "#/definitions/tenant"
+                        },
+                        "headers": {
+                            "Location": {
+                                "description": "URL of the tenant",
+                                "type": "string"
+                            }
+                        },
+                        "examples": {
+                            "application/json": "{\n  \"id\": \"Apple_Inc\",\n  \"name\": \"Apple Inc.\"\n}"
+                        }
+                    },
+                    "409": {
+                        "description": "If id already exists."
+                    }
+                }
+            },
+            "get": {
+                "summary": "Get tenants.",
+                "description": "Returns all tenants.\n",
+                "tags": [
+                    "Tenants"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "An array of tenants",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/tenant"
+                            }
+                        },
+                        "examples": {
+                            "application/json": "[ \n  {\n    \"id\": \"Apple_Inc\",\n    \"name\": \"Apple Inc.\",\n    \"rules\": [\n      {\n        \"id\": \"7e51950c-d695-40a1-86a9-dfffd8676988\",\n        \"emailmatch\": [\n          \"*@barco.com\",\n          \"wim.decroix@gmail.com\"\n        ],\n        \"attributes\": [\n          {\n            \"key\": \"calendar\",\n            \"value\": {\n              \"type\" : \"exchange\",\n              \"server\": \"https://emeamail.barco.com/EWS/Exchange.asmx\",\n              \"domain\": \"BARCO\"\n            }\n          }\n        ]\n      }\n    ],\n    \"attributes\": [\n      {\n        \"key\": \"sapRef\",\n        \"value\": \"E123423\"\n      }\n    ]\n  },\n  { \n    \"id\": \"Microsoft_Corp\",\n    \"name\": \"Microsoft Corp\",\n    \"rules\": [],\n    \"attributes\": []\n  }\n]"
+                        }
+                    }
+                }
+            }
+        },
+        "/tenants/{tenantId}": {
+            "get": {
+                "summary": "Return a tenant.",
+                "description": "Returns a tenant based on provided tenantId.\n",
+                "parameters": [
+                    {
+                        "name": "tenantId",
+                        "in": "path",
+                        "description": "Id of the tenant that is returned.",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "tags": [
+                    "Tenants"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully retrieved tenant.",
+                        "schema": {
+                            "$ref": "#/definitions/tenant"
+                        },
+                        "examples": {
+                            "application/json": "{\n  \"id\": \"Apple_Inc\",\n  \"name\": \"Apple Inc.\",\n  \"rules\": [\n    {\n      \"id\": \"7e51950c-d695-40a1-86a9-dfffd8676988\",\n      \"emailmatch\": [\n        \"*@barco.com\",\n        \"wim.decroix@gmail.com\"\n      ],\n      \"attributes\": [\n        {\n          \"key\": \"calendar\",\n          \"value\": {\n            \"type\" : \"exchange\",\n            \"server\": \"https://emeamail.barco.com/EWS/Exchange.asmx\",\n            \"domain\": \"BARCO\"\n          }\n        }\n      ]\n    }\n  ],\n  \"attributes\": [\n    {\n      \"key\": \"sapRef\",\n      \"value\": \"E123423\"\n    }\n  ]\n}"
+                        }
+                    },
+                    "404": {
+                        "description": "Tenant not found."
+                    }
+                }
+            },
+            "delete": {
+                "summary": "Delete tenant.",
+                "description": "Deletes a tenant based on provided tenantId.\n",
+                "parameters": [
+                    {
+                        "name": "tenantId",
+                        "in": "path",
+                        "description": "Id of the tenant that is deleted.",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "tags": [
+                    "Tenants"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Successfully deleted tenant."
+                    },
+                    "404": {
+                        "description": "Tenant not found."
+                    }
+                }
+            }
+        },
+        "/tenants/{tenantId}/rules": {
+            "post": {
+                "summary": "Adds a rule to a tenant.",
+                "description": "Adds a rule to a tenant. Only emailmatch is mandatory field.  \nid and attributes are optional.\nIf id is not present, an unique id will be generated.\n",
+                "parameters": [
+                    {
+                        "name": "tenantId",
+                        "in": "path",
+                        "description": "Id of the tenant to which rule is added.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "rule",
+                        "in": "body",
+                        "description": "Rule to be added to tenant.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/rule"
+                        }
+                    }
+                ],
+                "tags": [
+                    "Tenants",
+                    "Rules"
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Successfully added rule to tenant.",
+                        "schema": {
+                            "$ref": "#/definitions/rule"
+                        },
+                        "headers": {
+                            "Location": {
+                                "description": "URL of the tenant",
+                                "type": "string"
+                            }
+                        },
+                        "examples": {
+                            "application/json": "{\n  \"id\": \"7e51950c-d695-40a1-86a9-dfffd8676988\",\n  \"emailmatch\": [\n    \"*@barco.com\",\n    \"wim.decroix@gmail.com\"\n  ],\n  \"attributes\": [\n    {\n      \"key\": \"calendar\",\n      \"value\": {\n        \"type\" : \"exchange\",\n        \"server\": \"https://emeamail.barco.com/EWS/Exchange.asmx\",\n        \"domain\": \"BARCO\"\n      }\n    }\n  ]\n}"
+                        }
+                    },
+                    "404": {
+                        "description": "Tenant not found."
+                    },
+                    "409": {
+                        "description": "If rule id already exists."
+                    }
+                }
+            }
+        },
+        "/tenants/{tenantId}/rules/{ruleId}": {
+            "delete": {
+                "summary": "Delete rule",
+                "description": "Deletes a rule based on provided tenantId and ruleId.\n",
+                "parameters": [
+                    {
+                        "name": "tenantId",
+                        "in": "path",
+                        "description": "Id of the tenant.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "ruleId",
+                        "in": "path",
+                        "description": "Id of the rule that is deleted.",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "tags": [
+                    "Tenants",
+                    "Rules"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Successfully deleted rule."
+                    },
+                    "404": {
+                        "description": "Tenant or Rule not found."
+                    }
+                }
+            },
+            "put": {
+                "summary": "Update rule",
+                "description": "Updates specified rule.  The rule is completely replaced with the new object.\n",
+                "parameters": [
+                    {
+                        "name": "tenantId",
+                        "in": "path",
+                        "description": "Id of the tenant.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "ruleId",
+                        "in": "path",
+                        "description": "Id of the rule that is updated.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "rule",
+                        "in": "body",
+                        "description": "Rule to be updated.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/rule"
+                        }
+                    }
+                ],
+                "tags": [
+                    "Tenants",
+                    "Rules"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Rule successfully updated.",
+                        "schema": {
+                            "$ref": "#/definitions/rule"
+                        },
+                        "examples": {
+                            "application/json": "{\n  \"id\": \"7e51950c-d695-40a1-86a9-dfffd8676988\",\n  \"emailmatch\": [\n    \"*@barco.com\",\n    \"wim.decroix@gmail.com\"\n  ],\n  \"attributes\": [\n    {\n      \"key\": \"calendar\",\n      \"value\": {\n        \"type\" : \"exchange\",\n        \"server\": \"https://emeamail.barco.com/EWS/Exchange.asmx\",\n        \"domain\": \"BARCO\"\n      }\n    }\n  ]\n}"
+                        }
+                    },
+                    "404": {
+                        "description": "Tenant or Rule not found."
+                    },
+                    "409": {
+                        "description": "If id in rule is not equal to ruleId in path"
+                    }
+                }
+            },
+            "patch": {
+                "summary": "Update rule (delta)",
+                "description": "Updates specified rule.  Delta is applied. Only emailmatch is supported.\n(adding or removing email match items)\n",
+                "parameters": [
+                    {
+                        "name": "tenantId",
+                        "in": "path",
+                        "description": "Id of the tenant.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "ruleId",
+                        "in": "path",
+                        "description": "Id of the rule that is updated.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "rule",
+                        "in": "body",
+                        "description": "Rule to be updated.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/rule"
+                        }
+                    }
+                ],
+                "tags": [
+                    "Tenants",
+                    "Rules"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Rule successfully updated.",
+                        "schema": {
+                            "$ref": "#/definitions/rule"
+                        },
+                        "examples": {
+                            "application/json": "{\n  \"id\": \"7e51950c-d695-40a1-86a9-dfffd8676988\",\n  \"emailmatch\": [\n    \"*@barco.com\",\n    \"wim.decroix@gmail.com\"\n  ],\n  \"attributes\": [\n    {\n      \"key\": \"calendar\",\n      \"value\": {\n        \"type\" : \"exchange\",\n        \"server\": \"https://emeamail.barco.com/EWS/Exchange.asmx\",\n        \"domain\": \"BARCO\"\n      }\n    }\n  ]\n}"
+                        }
+                    },
+                    "404": {
+                        "description": "Tenant or Rule not found."
+                    },
+                    "409": {
+                        "description": "If id in rule is not equal to ruleId in path"
+                    }
+                }
+            }
+        },
+        "/tenants/{tenantId}/rules/{ruleId}/attributes/{key}": {
+            "put": {
+                "description": "Adds or replaces an attribute of a rule.\n",
+                "parameters": [
+                    {
+                        "name": "tenantId",
+                        "in": "path",
+                        "description": "Id of the tenant.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "ruleId",
+                        "in": "path",
+                        "description": "Id of the rule that is updated.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "key",
+                        "in": "path",
+                        "description": "Key of the attribute",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "value",
+                        "in": "body",
+                        "description": "Attribute value",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/attributevalue"
+                        }
+                    }
+                ],
+                "tags": [
+                    "Tenants",
+                    "Rules"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Attribute successfully updated or created",
+                        "schema": {
+                            "$ref": "#/definitions/attribute"
+                        },
+                        "examples": {
+                            "application/json": "{\n  \"key\": \"calendar\",\n  \"value\": {\n    \"type\" : \"exchange\",\n    \"server\": \"https://emeamail.barco.com/EWS/Exchange.asmx\",\n    \"domain\": \"BARCO\"\n  }\n}"
+                        }
+                    },
+                    "404": {
+                        "description": "Tenant or Rule not found."
+                    }
+                }
+            },
+            "delete": {
+                "description": "Deletes an attribute to a rule.\n",
+                "parameters": [
+                    {
+                        "name": "tenantId",
+                        "in": "path",
+                        "description": "Id of the tenant.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "ruleId",
+                        "in": "path",
+                        "description": "Id of the rule that is deleted.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "key",
+                        "in": "path",
+                        "description": "Key of the attribute",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "tags": [
+                    "Tenants",
+                    "Rules"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Successfully deleted attribute."
+                    },
+                    "404": {
+                        "description": "Tenant, Rule or attribute not found."
+                    }
+                }
+            },
+            "get": {
+                "description": "Gets an attribute of a rule\n",
+                "parameters": [
+                    {
+                        "name": "tenantId",
+                        "in": "path",
+                        "description": "Id of the tenant.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "ruleId",
+                        "in": "path",
+                        "description": "Id of the rule that is updated.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "key",
+                        "in": "path",
+                        "description": "Key of the attribute",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "tags": [
+                    "Tenants",
+                    "Rules"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Attribute found",
+                        "schema": {
+                            "$ref": "#/definitions/attribute"
+                        },
+                        "examples": {
+                            "application/json": "{\n  \"key\": \"calendar\",\n  \"value\": {\n    \"type\" : \"exchange\",\n    \"server\": \"https://emeamail.barco.com/EWS/Exchange.asmx\",\n    \"domain\": \"BARCO\"\n  }\n}"
+                        }
+                    },
+                    "404": {
+                        "description": "Tenant, Rule or attribute not found."
+                    }
+                }
+            }
+        },
+        "/tenants/{tenantId}/attributes/{key}": {
+            "put": {
+                "description": "Adds or replaces an attribute of a tenant.\n",
+                "parameters": [
+                    {
+                        "name": "tenantId",
+                        "in": "path",
+                        "description": "Id of the tenant.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "key",
+                        "in": "path",
+                        "description": "Key of the attribute",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "value",
+                        "in": "body",
+                        "description": "Attribute value",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/attributevalue"
+                        }
+                    }
+                ],
+                "tags": [
+                    "Tenants"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Attribute successfully updated or created",
+                        "schema": {
+                            "$ref": "#/definitions/attribute"
+                        },
+                        "examples": {
+                            "application/json": "{\n  \"key\": \"sapRef\",\n  \"value\": \"E123456\"\n}"
+                        }
+                    },
+                    "404": {
+                        "description": "Tenant not found."
+                    }
+                }
+            },
+            "delete": {
+                "description": "Deletes an attribute of a tenant.\n",
+                "parameters": [
+                    {
+                        "name": "tenantId",
+                        "in": "path",
+                        "description": "Id of the tenant.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "key",
+                        "in": "path",
+                        "description": "Key of the attribute",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "tags": [
+                    "Tenants"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Successfully deleted attribute."
+                    },
+                    "404": {
+                        "description": "Tenant or attribute not found."
+                    }
+                }
+            },
+            "get": {
+                "description": "Gets an attribute of a tenant\n",
+                "parameters": [
+                    {
+                        "name": "tenantId",
+                        "in": "path",
+                        "description": "Id of the tenant.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "key",
+                        "in": "path",
+                        "description": "Key of the attribute",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "tags": [
+                    "Tenants"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Attribute found",
+                        "schema": {
+                            "$ref": "#/definitions/attribute"
+                        },
+                        "examples": {
+                            "application/json": "{\n  \"key\": \"sapRef\",\n  \"value\": \"E123456\"\n}"
+                        }
+                    },
+                    "404": {
+                        "description": "Tenantor attribute not found."
+                    }
+                }
+            }
+        },
+        "/tenants/{tenantId}/devices": {
+            "post": {
+                "description": "Adds a device to a tenant.\n",
+                "parameters": [
+                    {
+                        "name": "tenantId",
+                        "in": "path",
+                        "description": "Id of the tenant.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "device",
+                        "in": "body",
+                        "description": "Device to be added to tenant.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/device"
+                        }
+                    }
+                ],
+                "tags": [
+                    "Tenants",
+                    "Devices"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Successfully added device to tenant."
+                    },
+                    "404": {
+                        "description": "Tenant or device not found."
+                    }
+                }
+            },
+            "get": {
+                "description": "Returns all devices of a tenant, based on tenantId.\n",
+                "parameters": [
+                    {
+                        "name": "tenantId",
+                        "in": "path",
+                        "description": "Id of the tenant that is returned.",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "tags": [
+                    "Tenants",
+                    "Devices"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully retrieved devices.",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/device"
+                            }
+                        },
+                        "examples": {
+                            "application/json": "[\n  {\n    \"unique_name\": \"S12345\",\n    \"tid\": \"Apple_Inc\"\n  },\n  {\n    \"unique_name\": \"S12346\",\n    \"tid\": \"Apple_Inc\"\n  }\n]"
+                        }
+                    },
+                    "404": {
+                        "description": "Tenant not found."
+                    }
+                }
+            }
+        },
+        "/tenants/{tenantId}/users": {
+            "get": {
+                "description": "Returns all users of a tenant, based on tenantId .\n",
+                "parameters": [
+                    {
+                        "name": "tenantId",
+                        "in": "path",
+                        "description": "Id of the tenant that is returned.",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "tags": [
+                    "Tenants",
+                    "Users"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully retrieved users.",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/user"
+                            }
+                        },
+                        "examples": {
+                            "application/json": "[\n  {\n    \"preferred_username\": \"employee1@apple.com\",\n    \"tid\": \"Apple_Inc\"\n  },\n  {\n    \"preferred_username\": \"employee2@apple.com\",\n    \"tid\": \"Apple_Inc\"\n  }\n]"
+                        }
+                    },
+                    "404": {
+                        "description": "Tenant not found."
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "device": {
+            "type": "object",
+            "required": [
+                "unique_name"
+            ],
+            "properties": {
+                "unique_name": {
+                    "type": "string",
+                    "description": "Unique name of a device. (=serial) (=clientid)"
+                },
+                "tid": {
+                    "type": "string",
+                    "description": "TenantID of the device"
+                }
+            },
+            "example": {
+                "unique_name": "S12345",
+                "tid": "Apple_Inc"
+            }
+        },
+        "user": {
+            "type": "object",
+            "required": [
+                "preferred_username"
+            ],
+            "properties": {
+                "preferred_username": {
+                    "type": "string",
+                    "description": "Username of an user. (=email)"
+                },
+                "tid": {
+                    "type": "string",
+                    "description": "TenantID of the user"
+                }
+            },
+            "example": {
+                "preferred_username": "wim.decroix@apple.com",
+                "tid": "Apple_Inc"
+            }
+        },
+        "attributevalue": {
+            "type": [
+                "string",
+                "object"
+            ],
+            "description": "Value of the attribute. Can be a string or object."
+        },
+        "attribute": {
+            "type": "object",
+            "properties": {
+                "key": {
+                    "type": "string",
+                    "description": "Unique key of the attribute"
+                },
+                "value": {
+                    "$ref": "#/definitions/attributevalue"
+                }
+            },
+            "example": {
+                "key": "somekey",
+                "value": "somevalue"
+            }
+        },
+        "rule": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "Unique identifier of a rule.  When creating rule, this property is optional."
+                },
+                "emailMatch": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "Email match."
+                },
+                "attributes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/attribute"
+                    }
+                }
+            },
+            "example": {
+                "id": "edab7b12-206c-4432-8a94-cad17a9297d9",
+                "attributes": [
+                    {
+                        "key": "calendar",
+                        "value": {
+                            "type": "exchange",
+                            "server": "https://emeamail.barco.com/EWS/Exchange.asmx",
+                            "domain": "BARCO"
+                        }
+                    }
+                ],
+                "emailmatch": [
+                    "*@barco.com",
+                    "wim.decroix@gmail.com"
+                ]
+            }
+        },
+        "tenant": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "Unique identifier of a tenant. Restricted to alphanumerical, _, -. When creating tenant, this property is optional."
+                },
+                "name": {
+                    "type": "string",
+                    "description": "Name of tenant."
+                },
+                "rules": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/rule"
+                    },
+                    "description": "Rules of tenant."
+                },
+                "attributes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/attribute"
+                    }
+                }
+            },
+            "example": {
+                "id": "Apple_Inc",
+                "name": "Apple Inc.",
+                "attributes": [
+                    {
+                        "key": "sapRef",
+                        "value": "E123423"
+                    }
+                ]
+            }
+        }
+    }
+}
