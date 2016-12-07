@@ -572,8 +572,13 @@ SwaggerUi.partials.signature = (function () {
     if (value.examples) {
       value = _.cloneDeep(value);
       var example = value.examples;
-      if (_.isString(example)) {
-        example = jsyaml.safeLoad(example);
+      if (_.isString(value.definition.example)) {
+        try {
+          value.definition.example = jsyaml.safeLoad(value.definition.example);
+        } catch (e) {
+          console.log(e);
+          value.definition.example = value.examples;
+        }
       }
       value.definition.example = example;
       return schemaToJSON(value.definition, example, modelsToIgnore, value.modelPropertyMacro);
